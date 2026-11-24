@@ -30,7 +30,7 @@ FROM node:20-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 
-ENV NEXT_PUBLIC_API_URL=http://api:3001 
+ENV NEXT_PUBLIC_API_URL=http://localhost:3001
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
