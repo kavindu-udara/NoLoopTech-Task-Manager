@@ -1,0 +1,40 @@
+name: API CI Pipeline
+
+on:
+    push: 
+        branches: ["main"]
+        paths:
+            - 'api/**'
+    pull_request:
+        branches: ["main"]
+        paths:
+            - 'api/**'
+
+jobs:
+    build-and-test:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [26.x]
+        
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+            
+            - name: Setup Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
+              with: 
+                node-version: ${{ matrix.node-version }}
+                cache: 'npm'
+                cache-dependency-path: './api/package-lock.json'
+
+            - name: Install dependencies
+              working-directory: ./api
+              run: npm ci
+
+            - name: Run Unit Tests
+              working-directory: ./api
+              run: npm run test
+
+    
