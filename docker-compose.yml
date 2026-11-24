@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   api:
     build:
@@ -32,13 +30,13 @@ services:
       context: ./web
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_API_URL=http://api:3001
+        - NEXT_PUBLIC_API_URL=http://localhost:3001
     ports:
       - "3000:3000"
     env_file:
       - ./web/.env
     environment:
-      - NEXT_PUBLIC_API_URL=http://api:3001
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
     depends_on:
       api:
         condition: service_healthy
