@@ -25,7 +25,7 @@ export default function Home() {
       const data = await api.getTasks();
       setTasks(data);
     } catch (error: any) {
-      setError(err.message || "Failed to fetch tasks");
+      setError(error.message || "Failed to fetch tasks");
     } finally {
       setLoading(false);
     }
