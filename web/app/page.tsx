@@ -9,6 +9,11 @@ import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+const getErrorMessage = (
+  error: unknown,
+  fallback = "An unexpected error occurred",
+) => (error instanceof Error && error.message ? error.message : fallback);
+
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -24,15 +29,31 @@ export default function Home() {
       setError(null);
       const data = await api.getTasks();
       setTasks(data);
-    } catch (error: any) {
-      setError(error.message || "Failed to fetch tasks");
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, "Failed to fetch tasks"));
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTasks();
+    let isMounted = true;
+
+    api
+      .getTasks()
+      .then((data) => {
+        if (isMounted) setTasks(data);
+      })
+      .catch((error: unknown) => {
+        if (isMounted) setError(getErrorMessage(error, "Failed to fetch tasks"));
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleCreate = async (data: CreateTaskDto) => {
@@ -41,8 +62,8 @@ export default function Home() {
       toast.success("Task created successfully", { position: "bottom-right" });
       fetchTasks();
       setIsFormOpen(false);
-    } catch (error: any) {
-      toast.error(error.message, { position: "bottom-right" });
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error), { position: "bottom-right" });
     }
   };
 
@@ -53,8 +74,8 @@ export default function Home() {
       fetchTasks();
       setIsFormOpen(false);
       setEditingTask(null);
-    } catch (error: any) {
-      toast.error(error.message, { position: "bottom-right" });
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error), { position: "bottom-right" });
     }
   };
 
@@ -64,8 +85,8 @@ export default function Home() {
       toast.success("Task deleted successfully", { position: "bottom-right" });
       fetchTasks();
       setDeletingTask(null);
-    } catch (error: any) {
-      toast.error(error.message, { position: "bottom-right" });
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error), { position: "bottom-right" });
     }
   };
 
